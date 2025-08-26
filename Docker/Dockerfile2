@@ -1,0 +1,5 @@
+FROM alpine
+LABEL maintainer="my-name"
+LABEL remarks="This is a dockerfile to check the difference between entrypoint & cd"
+ENTRYPOINT ["sleep"]
+CMD ["10"]

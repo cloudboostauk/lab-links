@@ -1,0 +1,13 @@
+#VOLUMEMOUNTS SECTION
+
+volumeMounts:
+ - name: config-volume  # Name of the volume which should match what is set in the volume section
+   mountPath: /app/templates/  # Path to mount the volume
+
+
+#VOLUMES SECTION
+
+volumes:
+  - name: config-volume  # Give the volume a name that can be used when mounting it
+    configMap:
+      name: mount-config # Name of the config Map
