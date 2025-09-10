@@ -20,6 +20,7 @@ PUT olympic-events/_settings
 #Task 3 Step 3 
 GET _cat/indices/olympic-events?v 
 
+
 #Task 4 Step 1 
 POST -reindex 
 {
