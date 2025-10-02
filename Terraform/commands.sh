@@ -2,4 +2,4 @@
 aws s3api create-bucket \
 --bucket <your-unique-bucket-name> \
 --region <your-region> \
---create-bucket-configuration LocationConstraint=<your-region>
+--create-bucket-configuration LocationConstraint=eu-west-2
