@@ -1,9 +1,9 @@
 variable "region" {
-  default = "us-west-2" # Change to prefered location
+  default = "eu-west-2" # Change to prefered location
 }
 
 variable "instance_type" {
-  default = "t2.micro"
+  default = "t3.micro"
 }
 
 variable "key_name" {
