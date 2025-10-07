@@ -11,5 +11,3 @@ aws dynamodb create-table \
   --key-schema AttributeName=LockID,KeyType=HASH \
   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
   --region us-east-1
-
-ß
