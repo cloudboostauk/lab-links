@@ -4,8 +4,8 @@ pipeline{
 	  choice choices: ['UAT', 'PERFORMANCE', 'PROD'], description: 'Target environment', name: 'TARGET_ENV'
     }
 	tools {
-        maven 'cba-maven-3.8.7'
-        jdk 'cba-jdk'
+        maven 'maven-3.6.3'
+        jdk 'jdk8'
     }
     stages{
         stage('init'){
