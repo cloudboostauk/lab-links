@@ -4,8 +4,13 @@
         {
             "Sid": "SSMGetParameter",
             "Effect": "Allow",
-            "Action": "ssm:GetParameter",
-            "Resource": "arn:aws:ssm:eu-west-2::parameter/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+            "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:*:parameter/aws/service/ami-amazon-linux-latest/*"
+            ]
         }
     ]
 }
