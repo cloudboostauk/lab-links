@@ -1,0 +1,22 @@
+####### Task 5: Creating Deployments ###############
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-three-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx-three
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx-three
+    spec:
+      containers:
+      - name: nginx-two
+        image: nginx:1.17-alpine
+        ports:
+        - containerPort: 80
+          name: nginx-pod-port

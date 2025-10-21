@@ -1,0 +1,13 @@
+#######Task 3: Creating a Pod using yaml file definition #######
+
+apiVersion: v1
+kind: Pod
+metadata:
+    name: busybox
+spec:
+  containers:
+    - name: one
+      image: busybox:1.28
+      command: ['sh', '-c', 'echo "Hello, Kubernetes!" && sleep 900']
+
+      

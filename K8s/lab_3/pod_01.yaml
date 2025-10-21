@@ -1,0 +1,12 @@
+# Deploy a Pod with your flask app container image to your cluster
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-flask-app
+spec:
+  containers:
+    - name: my-flask-app
+      image: ghcr.io/emmanuelogiji/cloudboosta-flask-app:0.2.0
+      ports:
+        - containerPort: 9900

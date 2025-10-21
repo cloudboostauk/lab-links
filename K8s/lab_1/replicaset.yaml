@@ -1,0 +1,21 @@
+####### Task 4: Creating a Replica Set ###############
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-two-rs
+  labels:
+    app: proxy-server
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx-two
+        image: nginx:1.17-alpine
