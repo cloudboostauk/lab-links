@@ -1,0 +1,84 @@
+
+---
+- name: Deploy Website from GitHub to EC2 instances
+  hosts: all
+  remote_user: ubuntu
+  become: yes
+
+  vars:
+    github_repo: "https://github.com/cloudboostauk/resturant.git"
+    github_branch: "main"
+    website_dir: "/var/www/html"
+
+  tasks:
+    - name: Update apt cache
+      apt: 
+        update_cache: yes
+
+    - name: Install Apache
+      apt: 
+        name: apache2
+        state: present
+
+    - name: Enable Apache service
+      systemd:
+        name: apache2
+        enabled: yes
+
+    - name: Install MySQL
+      apt: 
+        name: mysql-server
+        state: present
+
+    - name: Install PHP
+      apt: 
+        name: php
+        state: present
+
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+
+    - name: Ensure web root directory exists
+      file:
+        path: "/var/www/html"
+        state: directory
+      become: yes  # This runs the task as the root user
+
+    - name: Set ownership for web root directory
+      file:
+        path: "/var/www/html"
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
+      become: yes
+
+    - name: Delete existing files in web root
+      file:
+        path: "/var/www/html/"
+        state: absent
+      become: yes  # This also runs the task as the root user
+
+
+    - name: Clone the GitHub repo
+      git:
+        repo: "{{ github_repo }}"
+        dest: "{{ website_dir }}"
+        version: "{{ github_branch }}"
+        force: yes
+      become: yes
+
+    - name: Set ownership and permissions for website files
+      file:
+        path: "{{ website_dir }}"
+        owner: www-data
+        group: www-data
+        recurse: yes
+        state: directory
+
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
+...

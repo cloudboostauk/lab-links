@@ -1,0 +1,8 @@
+---
+- name: Print OS of each host
+  hosts: all
+  tasks:
+  - name: Print OS information
+    debug:
+      msg: "The operating system for {{ ansible_hostname }} is {{ ansible_distribution }} version {{ ansible_distribution_version }}"
+...

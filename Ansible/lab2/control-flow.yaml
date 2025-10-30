@@ -1,0 +1,180 @@
+# This playbook is named "Different tasks based on OS". It will run on all hosts, and will become the root user for executing commands.
+- name: Deploy different websites across 4 Hosts based on the OS of the Host
+  hosts: all
+  become: yes
+
+  # These variables are being defined for use in the tasks later.
+  vars:
+    Ubuntu_repo: "https://github.com/cloudboostauk/chain-app.git"
+    Amazon_repo: "https://github.com/cloudboostauk/crypto-app.git"
+    website_dir: "/var/www/html"
+
+  # These are the tasks that will be run on the hosts.
+  tasks:
+  
+  # This set of tasks will only run on hosts whose operating system is Ubuntu.
+  - name: Updating apt cache on Ubuntu servers 
+    apt: 
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Create user www-data on Ubuntu servers 
+    user:
+      name: www-data
+      state: present
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install Git on Ubuntu servers 
+    apt:
+      name: git
+      state: present
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install Apache on Ubuntu servers 
+    apt:
+      name: apache2
+      state: present
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Enable Apache service on Ubuntu servers 
+    systemd:
+      name: apache2
+      enabled: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install PHP on Ubuntu servers 
+    apt: 
+      name: php
+      state: present
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Ensure web root directory exists on Ubuntu servers 
+    file:
+      path: "{{ website_dir }}"
+      state: directory
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Set permissions for web root directory on Ubuntu servers 
+    file:
+      path: "{{ website_dir }}"
+      mode: '0755'
+    when: ansible_distribution == "Ubuntu"
+    become: yes
+
+  - name: Set ownership for web root directory on Ubuntu servers 
+    file:
+      path: "{{ website_dir }}/*"
+      owner: www-data
+      group: www-data
+      recurse: yes
+    become: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Delete existing files in web root on Ubuntu servers 
+    shell: "rm -rf {{ website_dir }}/*"
+    when: ansible_distribution == "Ubuntu"
+    become: yes
+    
+  - name: Delete existing files in web root on Ubuntu servers 
+    file:
+      path: "{{ website_dir }}/*"
+      state: absent
+    when: ansible_distribution == "Ubuntu"
+    become: yes
+    
+  - name: Configure Git safe directory
+    shell: git config --global --add safe.directory {{ website_dir }}
+    when: ansible_distribution == "Ubuntu"
+    become: yes
+
+  - name: Clone website on Ubuntu servers 
+    git:
+      repo: "{{ Ubuntu_repo }}"
+      dest: "{{ website_dir }}"
+      update: yes
+      force: yes
+    when: ansible_distribution == "Ubuntu"
+    become: yes
+
+  - name: Start Apache service on Ubuntu servers 
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+    when: ansible_distribution == "Ubuntu"
+
+  # This set of tasks will only run on hosts whose operating system is Amazon
+  - name: Update YUM cache on Amazon linux servers 
+    yum: 
+      update_cache: yes
+    when: ansible_distribution == "Amazon"
+
+  - name: Create user ec2-user on Amazon linux servers 
+    user:
+      name: ec2-user
+      state: present
+    when: ansible_distribution == "Amazon"
+
+  - name: Install Git on Amazon linux servers 
+    yum:
+      name: git
+      state: present
+    when: ansible_distribution == "Amazon"
+
+  - name: Install httpd Amazon linux servers 
+    yum:
+      name: httpd
+      state: present
+    when: ansible_distribution == "Amazon"
+
+  - name: Enable httpd service Amazon linux servers 
+    systemd:
+      name: httpd
+      enabled: yes
+    when: ansible_distribution == "Amazon"
+
+  - name: Ensure web root directory exists Amazon linux servers 
+    file:
+      path: "{{ website_dir }}"
+      state: directory
+    when: ansible_distribution == "Amazon"
+
+  - name: Set permissions for web root directory Amazon linux servers 
+    file:
+      path: "{{ website_dir }}"
+      mode: '0755'
+    when: ansible_distribution == "Amazon"
+    become: yes
+
+  - name: Set ownership for web root directory Amazon linux servers 
+    file:
+      path: "{{ website_dir }}"
+      owner: ec2-user
+      group: ec2-user
+      recurse: yes
+    become: yes
+    when: ansible_distribution == "Amazon"
+
+  - name: Delete existing files in web root Amazon linux servers 
+    file:
+      path: "{{ website_dir }}/*"
+      state: absent
+    when: ansible_distribution == "Amazon"
+    become: yes
+
+
+  - name: Clone website Amazon linux servers 
+    git:
+      repo: "{{ Amazon_repo }}"
+      dest: "{{ website_dir }}"
+      update: yes
+      force: yes
+    when: ansible_distribution == "Amazon"
+    become: yes
+
+  - name: Start httpd service Amazon linux servers 
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "Amazon"
