@@ -1,3 +1,4 @@
+# copy
 aws ec2-instance-connect send-ssh-public-key \
     --instance-id PRIVATE-INSTANCE \
     --region eu-west-2 \
