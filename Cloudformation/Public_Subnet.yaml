@@ -1,0 +1,10 @@
+PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: eu-west-2b
+      CidrBlock: 10.7.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags: 
+        - Key: Name
+          Value: ProjectPublicSubnet01
+      VpcId: !Ref VPC

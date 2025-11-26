@@ -1,0 +1,7 @@
+ PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      Tags: 
+        - Key: Name
+          Value: ProjectPublicRouteTable
+      VpcId: !Ref VPC

@@ -1,0 +1,19 @@
+WebInstanceB:
+    Type: AWS::EC2::Instance
+    Properties: 
+      BlockDeviceMappings: 
+        - DeviceName: /dev/xvda
+          Ebs: 
+            VolumeType: gp3
+            Iops: 3000
+            DeleteOnTermination: true
+            VolumeSize: 8
+      ImageId: "replace with an ami value from your console"
+      InstanceType: t2.micro
+      KeyName: "replace with a keypair name on your console"
+      SecurityGroupIds: 
+        - !Ref SecurityGroup
+      SubnetId: !Ref PrivateSubnet
+      Tags: 
+        - Key: Name
+          Value: ProjectInstance02
