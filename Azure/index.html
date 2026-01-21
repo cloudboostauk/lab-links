@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>GoodPeople Ltd - HR Portal</title>
+       <style>
+           * { margin: 0; padding: 0; box-sizing: border-box; }
+           body {
+               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               min-height: 100vh;
+               display: flex;
+               justify-content: center;
+               align-items: center;
+               padding: 20px;
+           }
+           .container {
+               background: white;
+               padding: 40px;
+               border-radius: 10px;
+               box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+               max-width: 500px;
+               width: 100%;
+           }
+           .logo {
+               text-align: center;
+               margin-bottom: 30px;
+           }
+           .logo h1 {
+               color: #667eea;
+               font-size: 32px;
+               margin-bottom: 5px;
+           }
+           .logo p {
+               color: #666;
+               font-size: 14px;
+           }
+           .welcome {
+               background: #f8f9fa;
+               padding: 20px;
+               border-radius: 8px;
+               margin-bottom: 30px;
+               border-left: 4px solid #667eea;
+           }
+           .welcome h2 {
+               color: #333;
+               margin-bottom: 10px;
+               font-size: 20px;
+           }
+           .menu {
+               display: grid;
+               gap: 15px;
+           }
+           .menu-item {
+               background: #f8f9fa;
+               padding: 20px;
+               border-radius: 8px;
+               border: 2px solid #e9ecef;
+               cursor: pointer;
+               transition: all 0.3s;
+               text-decoration: none;
+               color: inherit;
+               display: block;
+           }
+           .menu-item:hover {
+               border-color: #667eea;
+               background: #f0f0ff;
+               transform: translateY(-2px);
+           }
+           .menu-item h3 {
+               color: #667eea;
+               margin-bottom: 8px;
+               font-size: 18px;
+           }
+           .menu-item p {
+               color: #666;
+               font-size: 14px;
+           }
+           .status {
+               margin-top: 30px;
+               padding: 15px;
+               background: #d4edda;
+               border: 1px solid #c3e6cb;
+               border-radius: 5px;
+               color: #155724;
+               text-align: center;
+           }
+           .security-badge {
+               position: absolute;
+               top: 20px;
+               right: 20px;
+               background: #28a745;
+               color: white;
+               padding: 5px 15px;
+               border-radius: 20px;
+               font-size: 12px;
+               font-weight: bold;
+           }
+       </style>
+   </head>
+   <body>
+       <div class="security-badge">🔒 SECURE</div>
+       <div class="container">
+           <div class="logo">
+               <h1>GoodPeople Ltd</h1>
+               <p>Employee HR Portal</p>
+           </div>
+           
+           <div class="welcome">
+               <h2>Welcome Back! 👋</h2>
+               <p>Access your HR information securely from authorized locations only.</p>
+           </div>
+           
+           <div class="menu">
+               <div class="menu-item">
+                   <h3>💰 View Payslips</h3>
+                   <p>Access your current and historical payslips</p>
+               </div>
+               
+               <div class="menu-item">
+                   <h3>🏖️ Request Leave</h3>
+                   <p>Submit and track your vacation requests</p>
+               </div>
+               
+               <div class="menu-item">
+                   <h3>👤 Update Personal Info</h3>
+                   <p>Manage your contact details and emergency contacts</p>
+               </div>
+               
+               <div class="menu-item">
+                   <h3>📊 Benefits Dashboard</h3>
+                   <p>View your healthcare, pension, and other benefits</p>
+               </div>
+           </div>
+           
+           <div class="status">
+               ✅ Portal Status: Online | Network: Secured by Azure NSG
+           </div>
+       </div>
+   </body>
+   </html>
