@@ -22,9 +22,9 @@ GET _cat/indices/olympic-events?v
 
 
 #Task 4 Step 1 
-POST -reindex 
+POST _reindex 
 {
-    “source": {
+    "source": {
       "index": "olympic-events"
     },          
     "dest": {
