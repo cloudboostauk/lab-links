@@ -1,0 +1,19 @@
+version: '3.9'
+
+
+services:
+ web:
+   image: nginx:alpine
+   deploy:
+     replicas: 2
+     resources:
+       limits:
+         cpus: '0.50'
+         memory: 256M
+       reservations:
+         cpus: '0.25'
+         memory: 128M
+     restart_policy:
+       condition: on-failure
+   ports:
+     - "8080:80"
