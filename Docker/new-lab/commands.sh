@@ -31,6 +31,9 @@ docker run -d --name limited \
  --cpus="0.5" \
  nginx:alpine
 
+# Verify limits
+docker inspect limited --format='Memory: {{.HostConfig.Memory}}, CPU: {{.HostConfig.NanoCpus}}'
+
 #Task 4 step 4.6
 docker service inspect sectest_web --pretty | grep -A5 Resources
 
@@ -76,6 +79,9 @@ docker run -d --name bad-example -e DB_PASSWORD=supersecret123 nginx:alpine
 
 # Anyone with Docker access can see it!
 docker inspect bad-example --format='{{range .Config.Env}}{{println .}}{{end}}' | grep DB_PASSWORD
+
+#Task 6 step 6.2
+printf "SuperStrongPass123!" | docker secret create db_password -
 
 #Task 6 step 6.6
 docker exec $(docker ps -q --filter name=secretsdemo_api) ls -la /run/secrets/
