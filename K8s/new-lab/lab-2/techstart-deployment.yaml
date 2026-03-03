@@ -1,0 +1,27 @@
+cat << 'EOF' > techstart-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techstart-catalog
+  labels:
+    app: techstart
+    component: catalog
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: techstart
+      component: catalog
+  template:
+    metadata:
+      labels:
+        app: techstart
+        component: catalog
+    spec:
+      containers:
+      - name: catalog
+        image: techstart-catalog:1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+EOF

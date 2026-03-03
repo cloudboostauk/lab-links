@@ -1,0 +1,15 @@
+ cat << 'EOF' > techstart-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: techstart-catalog
+  labels:
+    app: techstart
+spec:
+  containers:
+  - name: catalog
+    image: techstart-catalog:1.0
+    imagePullPolicy: Never
+    ports:
+    - containerPort: 5000
+EOF

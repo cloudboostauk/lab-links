@@ -1,0 +1,15 @@
+cat << 'EOF' > catalog-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+spec:
+  type: ClusterIP
+  selector:
+    app: techstart
+    component: catalog
+  ports:
+  - port: 80
+    targetPort: 5000
+    name: http
+EOF
