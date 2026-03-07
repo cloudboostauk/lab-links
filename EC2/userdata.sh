@@ -4,35 +4,32 @@
 #command to update the OS
 sudo apt-get update -y 
 
-#command to add the Jenkins repo
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
-  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-
-#command to Import a key file from Jenkins-CI to enable installation from the package
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
-
-#command to update the OS
+# Update the OS
 sudo apt-get update -y 
 
-#command to install java
-sudo apt install openjdk-17-jre -y 
+# Import the current Jenkins 2026 GPG key (LTS stable repo)
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
 
-#command to install Jenkins
+# Add the Jenkins repo entry
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/" | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+# Update package index
+sudo apt-get update -y 
+
+# Install Java 21 (required for Jenkins)
+sudo apt install fontconfig openjdk-21-jre -y 
+
+# Install Jenkins
 sudo apt-get install jenkins -y
 
-#command to update the OS
-apt-get update -y
-
-#command to enable Jenkins
+# Enable and start Jenkins service
 sudo systemctl enable jenkins
-
-#command to start Jenkins
 sudo systemctl start jenkins
 
-#command to check Jenkins status
+# Check status
 sudo systemctl status jenkins
 
-#command to get Jenkins password
-cat /var/lib/jenkins/secrets/initialAdminPassword
+# Get initial admin password
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
