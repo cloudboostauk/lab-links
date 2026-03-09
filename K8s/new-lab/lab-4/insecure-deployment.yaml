@@ -1,0 +1,33 @@
+cat << 'EOF' > insecure-deployment.yaml
+# WARNING: This file would be committed to Git!
+# Anyone with repo access can see these passwords!
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-insecure
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      labels:
+        app: catalog
+    spec:
+      containers:
+      - name: catalog
+        image: techstart-catalog:2.0
+        imagePullPolicy: Never
+        env:
+        # DANGER: Hardcoded credentials!
+        - name: DB_USERNAME
+          value: "techstart_admin"
+        - name: DB_PASSWORD
+          value: "SuperSecret123!"        # <-- Visible to everyone!
+        - name: DB_HOST
+          value: "db.techstart.internal"
+        - name: API_KEY
+          value: "sk-prod-abc123xyz"      # <-- Production API key exposed!
+EOF
