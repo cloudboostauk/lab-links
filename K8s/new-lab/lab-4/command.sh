@@ -17,6 +17,12 @@ helm install external-secrets external-secrets/external-secrets \
   --create-namespace \
   --set installCRDs=true
 
+#Task 7 step 7.3
+kubectl create secret generic aws-credentials \
+  --from-literal=access-key=YOUR_ACCESS_KEY \
+  --from-literal=secret-key=YOUR_SECRET_KEY
+
+
 #Task 7 step 7.6
   aws secretsmanager update-secret \
   --secret-id techstart/database \
