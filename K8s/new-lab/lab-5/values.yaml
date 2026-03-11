@@ -1,0 +1,31 @@
+cat << 'EOF' > techstart-catalog/values.yaml
+# Application settings
+replicaCount: 2
+
+image:
+  repository: techstart-catalog
+  tag: "4.0"
+  pullPolicy: Never
+
+# Service settings
+service:
+  type: NodePort
+  port: 80
+  targetPort: 5000
+  nodePort: 30080
+
+# Resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# Environment variables
+env:
+  DB_USERNAME: "default_user"
+  DB_PASSWORD: "default_pass"
+  DB_HOST: "localhost"
+EOF

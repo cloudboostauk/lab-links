@@ -1,0 +1,8 @@
+cat << 'EOF' > prod-values.yaml
+replicaCount: 3
+
+env:
+  DB_USERNAME: "prod_admin"
+  DB_PASSWORD: "SecureP@ss123"
+  DB_HOST: "db.techstart.com"
+EOF

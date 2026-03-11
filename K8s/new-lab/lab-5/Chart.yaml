@@ -1,0 +1,8 @@
+cat << 'EOF' > techstart-catalog/Chart.yaml
+apiVersion: v2
+name: techstart-catalog
+description: TechStart Product Catalog Application
+type: application
+version: 1.0.0
+appVersion: "4.0"
+EOF
