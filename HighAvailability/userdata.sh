@@ -24,148 +24,90 @@ sed -i 's/Options Indexes FollowSymLinks/Options Indexes FollowSymLinks Includes
 # Remove default Apache test page
 rm -f /var/www/html/index.html /var/www/html/index.shtml
 
-# Create the HTML file with instance details
+# Create the HTML file with instance details for HA Lab
 cat << EOF > /var/www/html/index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High Availability in Cloud Computing - Cloudboosta Training</title>
+    <title>AWS High Availability Lab - ALB + EC2 Demo | Cloudboosta</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: linear-gradient(to bottom, #2c3e50, #3498db);
-            color: white;
-            display: flex;
-            flex-direction: column;
-        }
-        header {
-            text-align: center;
-            padding: 2rem;
-        }
-        .cloudboosta-banner {
-            background-color: #f39c12;
-            color: #2c3e50;
-            text-align: center;
-            padding: 0.5rem;
-            font-weight: bold;
-        }
-        main {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        .hostname, .private-ip {
-            background-color: white;
-            color: black;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .refresh-instruction {
-            background-color: #e74c3c;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .info {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 1200px;
-        }
-        .info-section {
-            flex-basis: 45%;
-            margin-bottom: 2rem;
-        }
-        footer {
-            text-align: center;
-            padding: 1rem;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; min-height: 100vh; background: linear-gradient(to bottom, #1e3c72, #2a5298); color: white; display: flex; flex-direction: column; }
+        .banner { background: #f39c12; color: #2c3e50; text-align: center; padding: 1rem; font-weight: bold; font-size: 1.2rem; }
+        header { text-align: center; padding: 2rem; }
+        main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        .instance-box { background: white; color: black; padding: 1.5rem; border-radius: 12px; font-size: 1.8rem; margin: 1rem; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .action-call { background: #27ae60; color: white; padding: 1rem 2rem; border-radius: 8px; margin: 2rem 0; text-align: center; font-weight: bold; font-size: 1.3rem; }
+        .ha-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; max-width: 1200px; }
+        .ha-card { background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(10px); }
+        .demo-steps { background: #e74c3c; color: white; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+        footer { text-align: center; padding: 1rem; background: rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
-    <div class="cloudboosta-banner">
-        Training Provided by Cloudboosta
-    </div>
+    <div class="banner">🚀 Cloudboosta High Availability Lab</div>
     <header>
-        <h1>High Availability in Cloud Computing</h1>
+        <h1>AWS ALB + EC2 High Availability Demo</h1>
+        <p>Watch load balancing in action!</p>
     </header>
     <main>
-        <div class="hostname">
-            Hostname: <!--#exec cmd="hostname -f" -->
-        </div>
-        <div class="private-ip">
+        <div class="instance-box">
+            <strong>Current Instance:</strong><br>
+            Hostname: <!--#exec cmd="hostname -f" --><br>
             Private IP: $PRIVATE_IP
         </div>
-        <div class="refresh-instruction">
-            <strong>Refresh the page several times to see the Private IP change, demonstrating High Availability in action!</strong>
+        <div class="action-call">
+            🔄 REFRESH 5-10 TIMES → See IP change across instances!<br>
+            PROOF: ALB distributes traffic for zero-downtime HA.
         </div>
-        <div class="info">
-            <div class="info-section">
-                <h2>What is High Availability?</h2>
-                <p>High Availability (HA) in cloud computing refers to the ability of a system to remain operational and accessible even in the face of component failures. It ensures that services remain available to users with minimal downtime, typically aiming for 99.9% uptime or higher.</p>
-            </div>
-            <div class="info-section">
-                <h2>Benefits of High Availability</h2>
+        
+        <div class="demo-steps">
+            <h3>Lab Verification Steps</h3>
+            <ol>
+                <li>Access via <strong>ALB DNS</strong> (not direct EC2 IP)</li>
+                <li>Refresh page → Traffic hits different EC2s</li>
+                <li>Stop 1 instance → ALB routes around it instantly</li>
+                <li>Scale up → ASG adds instances automatically</li>
+            </ol>
+        </div>
+
+        <div class="ha-grid">
+            <div class="ha-card">
+                <h2>🎯 HA Core Principles</h2>
                 <ul>
-                    <li>Minimized downtime and service interruptions</li>
-                    <li>Improved user experience and satisfaction</li>
-                    <li>Increased business continuity</li>
-                    <li>Enhanced disaster recovery capabilities</li>
-                    <li>Better resource utilization</li>
+                    <li>Multi-AZ Deployment</li>
+                    <li>Load Balancing (ALB)</li>
+                    <li>Health Checks & Failover</li>
+                    <li>Auto Scaling Groups</li>
                 </ul>
             </div>
-            <div class="info-section">
-                <h2>Implementation Strategies</h2>
+            <div class="ha-card">
+                <h2>✅ Key Benefits</h2>
                 <ul>
-                    <li>Redundancy: Duplicate critical components</li>
-                    <li>Load Balancing: Distribute traffic across multiple servers</li>
-                    <li>Failover Systems: Automatic switching to backup systems</li>
-                    <li>Data Replication: Maintain multiple copies of data across locations</li>
-                    <li>Geographic Distribution: Deploy across multiple regions or availability zones</li>
+                    <li>99.99% Uptime SLA</li>
+                    <li>Zero Manual Failover</li>
+                    <li>Auto Scale on Demand</li>
+                    <li>Fault-Tolerant Architecture</li>
                 </ul>
             </div>
-            <div class="info-section">
-                <h2>Use Cases</h2>
-                <ul>
-                    <li>E-commerce platforms ensuring 24/7 availability</li>
-                    <li>Financial services requiring constant uptime</li>
-                    <li>Healthcare systems with critical patient data</li>
-                    <li>Global content delivery networks</li>
-                    <li>SaaS applications with service level agreements (SLAs)</li>
-                </ul>
+            <div class="ha-card">
+                <h2>🛠️ Architecture</h2>
+                <p>ALB → Target Group → EC2 ASG (2+ AZs)<br>
+                Health checks ensure only healthy instances serve traffic.[web:1][web:11]</p>
             </div>
-            <div class="info-section">
-                <h2>Scaling Strategies</h2>
+            <div class="ha-card">
+                <h2>🚀 Pro Tips</h2>
                 <ul>
-                    <li>Vertical Scaling: Increasing the power of existing servers</li>
-                    <li>Horizontal Scaling: Adding more servers to distribute load</li>
-                    <li>Auto-scaling: Dynamically adjusting resources based on demand</li>
-                    <li>Database Sharding: Partitioning data across multiple databases</li>
-                    <li>Microservices Architecture: Breaking down applications into smaller, scalable services</li>
+                    <li>Use sticky sessions for stateful apps</li>
+                    <li>Enable access logs for monitoring</li>
+                    <li>Pair with RDS Multi-AZ</li>
                 </ul>
-            </div>
-            <div class="info-section">
-                <h2>Monitoring and Management</h2>
-                <p>Implementing high availability requires continuous monitoring and management. Cloud providers offer tools for real-time monitoring, automated alerts, and performance analytics to ensure systems remain highly available and quickly recover from any issues.</p>
             </div>
         </div>
     </main>
     <footer>
-        <p>&copy; 2025 High Availability in Cloud Computing Demo | Cloudboosta Training</p>
+        <p>&copy; 2026 Cloudboosta Training Lab | Multi-AZ ALB Demo</p>
     </footer>
 </body>
 </html>
