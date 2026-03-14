@@ -46,3 +46,9 @@ kubectl get secret db-credentials -o jsonpath='{.data.password}' | base64 -d
 
 #Task 8 step 8.5
 kubectl annotate externalsecret database-credentials force-sync=$(date +%s) --overwrite
+
+#Task 9 step 9.1
+aws secretsmanager delete-secret \
+  --secret-id techstart/database \
+  --force-delete-without-recovery \
+  --region 
