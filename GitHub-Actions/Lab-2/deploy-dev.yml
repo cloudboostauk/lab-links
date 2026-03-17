@@ -1,0 +1,21 @@
+cat << 'EOF' > .github/workflows/deploy-dev.yml
+name: Deploy to Dev
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    # Instead of defining steps, we call another workflow
+    uses: ./.github/workflows/terraform-reusable.yml
+    # Pass the environment name
+    with:
+      environment: dev
+    # Pass secrets through
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+EOF
