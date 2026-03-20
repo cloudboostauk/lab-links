@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/terraform.yml
 name: Terraform CI/CD
 
 # When does this workflow run?
@@ -75,4 +74,3 @@ jobs:
             terraform.tfstate.backup
             .terraform
           key: terraform-state-${{ github.repository }}
-EOF
