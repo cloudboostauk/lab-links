@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/destroy-all.yml
 name: Destroy All Environments
 
 on:
@@ -88,4 +87,3 @@ jobs:
       - name: Terraform Destroy Dev
         run: terraform destroy -auto-approve -var="environment=dev"
         continue-on-error: true
-EOF
