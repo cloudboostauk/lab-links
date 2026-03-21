@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/terraform-reusable.yml
 name: Reusable Terraform Workflow
 
 # This workflow is triggered by OTHER workflows, not by push/PR
@@ -72,4 +71,3 @@ jobs:
             terraform.tfstate.backup
             .terraform
           key: terraform-state-${{ inputs.environment }}-${{ github.repository }}
-EOF
