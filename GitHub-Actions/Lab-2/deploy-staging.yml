@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/deploy-staging.yml
 name: Deploy to Staging
 
 on:
@@ -55,4 +54,3 @@ jobs:
           echo "## Staging Deployment Complete!" >> $GITHUB_STEP_SUMMARY
           echo "Environment: staging" >> $GITHUB_STEP_SUMMARY
           echo "Deployed by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-EOF
