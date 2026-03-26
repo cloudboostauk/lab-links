@@ -32,6 +32,15 @@ jobs:
         with:
           terraform_version: 1.6.0
 
+      - name: Restore Terraform State
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            terraform.tfstate
+            terraform.tfstate.backup
+            .terraform
+          key: terraform-state-${{ github.repository }}
+
       - name: Terraform Format Check
         id: fmt
         run: terraform fmt -check
@@ -89,3 +98,13 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
+
+      - name: Save Terraform State
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            terraform.tfstate
+            terraform.tfstate.backup
+            .terraform
+          key: terraform-state-${{ github.repository }}

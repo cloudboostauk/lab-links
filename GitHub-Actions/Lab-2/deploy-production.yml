@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/deploy-production.yml
 name: Deploy to Production
 
 on:
@@ -89,4 +88,3 @@ jobs:
           echo "## Production Deployment Complete!" >> $GITHUB_STEP_SUMMARY
           echo "Environment: production" >> $GITHUB_STEP_SUMMARY
           echo "Approved by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-EOF

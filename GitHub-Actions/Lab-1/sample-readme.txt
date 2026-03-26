@@ -1,7 +1,3 @@
-# GitHub Actions Terraform Lab
-
-![Terraform CI/CD](https://github.com/<YOUR-USERNAME>/github-actions-lab/actions/workflows/terraform.yml/badge.svg)
-
 This repository demonstrates GitHub Actions automation for Terraform deployments.
 
 ## Workflow

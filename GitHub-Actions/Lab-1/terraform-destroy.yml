@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/terraform-destroy.yml
 name: Terraform Destroy
 
 on:
@@ -51,4 +50,3 @@ jobs:
             terraform.tfstate.backup
             .terraform
           key: terraform-state-${{ github.repository }}-destroyed
-EOF
