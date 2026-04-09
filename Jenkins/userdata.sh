@@ -12,6 +12,9 @@ echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkin
 sudo apt-get update -y
 sudo apt-get install -y openjdk-17-jre jenkins
 
+sudo apt update
+sudo apt install maven -y
+
 # Docker
 sudo apt-get install -y docker.io
 sudo usermod -aG docker ubuntu
