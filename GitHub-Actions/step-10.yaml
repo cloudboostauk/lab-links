@@ -1,0 +1,23 @@
+name: Hello Workflow
+ 
+on:
+  push:
+    branches: [main]
+ 
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print a greeting
+        run: echo "Hello from GitHub Actions!"
+ 
+      - name: Show who triggered the workflow
+        run: echo "Triggered by ${{ github.actor }}"
+ 
+      - name: Show system information
+        run: |
+          echo "Operating system: $(uname -s)"
+          echo "Kernel version: $(uname -r)"
+          echo "Machine name: $(hostname)"
+          echo "Current directory: $(pwd)"
+          echo "Date and time: $(date)"
