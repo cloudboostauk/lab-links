@@ -41,10 +41,12 @@ jobs:
             .terraform
           key: terraform-state-${{ github.repository }}
 
+      - name: Terraform Format
+        run: terraform fmt -recursive
+        
       - name: Terraform Format Check
         id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
+        run: terraform fmt -check -recursive
 
       - name: Terraform Init
         id: init

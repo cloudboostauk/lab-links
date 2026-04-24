@@ -43,9 +43,12 @@ jobs:
           key: terraform-state-${{ github.repository }}
 
       # Step 4: Check formatting
+      - name: Terraform Format
+        run: terraform fmt -recursive
+        
       - name: Terraform Format Check
-        run: terraform fmt -check
-        continue-on-error: true
+        id: fmt
+        run: terraform fmt -check -recursive
 
       # Step 5: Initialize Terraform
       - name: Terraform Init
