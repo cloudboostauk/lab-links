@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Using Secret Text') {
+            steps {
+                withCredentials([string(credentialsId: 'db-password', variable: 'DB_PASS')]) {
+                    sh '''
+                        echo "Connecting to database..."
+                        echo "Password length: ${#DB_PASS} characters"
+                        echo "Password value: $DB_PASS"
+                    '''
+                }
+            }
+        }
+        
+        stage('Using Username/Password') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'db-credentials',
+                    usernameVariable: 'DB_USER',
+                    passwordVariable: 'DB_PASS'
+                )]) {
+                    sh '''
+                        echo "Logging in as: $DB_USER"
+                        echo "Password is: $DB_PASS"
+                    '''
+                }
+            }
+        }
+    }
+}
