@@ -41,7 +41,6 @@ resource "aws_sns_topic" "system_alerts" {
   }
 }
 
-
 resource "aws_sns_topic" "compliance" {
   name = "${local.name_prefix}-compliance"
 
