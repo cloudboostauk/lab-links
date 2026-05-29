@@ -32,7 +32,7 @@ docker run -d --name limited \
  nginx:alpine
 
 # Verify limits
-docker inspect limited --format='Memory: {{.HostConfig.Memory}}, CPU: {{.HostConfig.NanoCpus}}'
+docker inspect unlimited --format='Memory: {{.HostConfig.Memory}}, CPU: {{.HostConfig.NanoCpus}}'
 
 #Task 4 step 4.6
 docker service inspect sectest_web --pretty | grep -A5 Resources
