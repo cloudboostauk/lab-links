@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PartyRadar Diaspora</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <a class="logo" href="index.html">Party<span>Radar</span> 🇳🇬</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="rsvp.html">RSVP</a></li>
+    </ul>
+  </nav>
+  <section class="hero">
+    <h1>Find the <span>hottest parties</span><br />happening in Nigeria</h1>
+    <p>From London to Houston — discover Nigerian events near you,
+       check the vibe, and RSVP before the guest list closes.</p>
+    <a href="events.html" class="btn">Browse Events</a>
+    <a href="rsvp.html" class="btn btn-outline">RSVP Now</a>
+  </section>
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat"><div class="num">24</div><div class="lbl">Events worldwide</div></div>
+      <div class="stat"><div class="num">6</div><div class="lbl">Cities covered worldwide</div></div>
+      <div class="stat"><div class="num">1,200+</div><div class="lbl">RSVPs submitted</div></div>
+      <div class="stat"><div class="num">100%</div><div class="lbl">Free to use</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <p class="section-title">Featured Events</p>
+    <p class="section-sub">A taste of what is coming up.</p>
+    <div class="events-grid" id="featured-events"></div>
+</div>
+<footer>
+  <p>Built with ❤️ by the <span>CloudBoosta</span> DevOps team</p>
+</footer>
+<script src="app.js"></script>
+<script>
+  const grid = document.getElementById('featured-events');
+  EVENTS.slice(0, 3).forEach(e => { grid.innerHTML += buildCard(e); });
+</script>
+</body>
+</html>

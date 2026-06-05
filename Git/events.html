@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events — PartyRadar Diaspora</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <a class="logo" href="index.html">Party<span>Radar</span> 🇳🇬</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="rsvp.html">RSVP</a></li>
+    </ul>
+  </nav>
+  <section class="hero" style="padding:50px 2rem 40px;">
+    <h1 style="font-size:2rem;">Upcoming <span>Events</span></h1>
+    <p>All the owambes, concerts, and Naija nights worth knowing about, wherever you are in the world.</p>
+  </section>
+  <div style="background:#fff;padding:1rem 2rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div style="max-width:1100px;margin:0 auto;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+      <label style="font-weight:600;font-size:0.9rem;">Filter by city:</label>
+      <select id="city-filter" onchange="filterEvents()"
+        style="padding:0.4rem 0.8rem;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;">
+        <option value="all">All Cities</option>
+        <option value="London">London</option>
+        <option value="Houston">Houston</option>
+        <option value="Toronto">Toronto</option>
+        <option value="Dubai">Dubai</option>
+      </select>
+      <span id="event-count" style="margin-left:auto;color:#777;font-size:0.88rem;"></span>
+    </div>
+  </div>
+  <div class="section">
+    <div class="events-grid" id="all-events"></div>
+  </div>
+  <footer>
+    <p>Built with ❤️ by the <span>CloudBoosta</span> DevOps team</p>
+  </footer>
+  <script src="app.js"></script>
+  <script>
+    function renderEvents(list) {
+      const grid = document.getElementById('all-events');
+      const count = document.getElementById('event-count');
+      grid.innerHTML = list.length
+        ? list.map(e => buildCard(e)).join('')
+        : '<p style="color:#777;grid-column:1/-1;">No events found.</p>';
+      count.textContent = list.length + ' event' + (list.length !== 1 ? 's' : '') + ' found';
+    }
+    function filterEvents() {
+      const city = document.getElementById('city-filter').value;
+      renderEvents(city === 'all' ? EVENTS : EVENTS.filter(e => e.city === city));
+    }
+    renderEvents(EVENTS);
+  </script>
+</body>
+</html>

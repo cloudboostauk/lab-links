@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSVP — PartyRadar Diaspora</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <a class="logo" href="index.html">Party<span>Radar</span> 🇳🇬</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="rsvp.html">RSVP</a></li>
+    </ul>
+  </nav>
+  <div class="rsvp-wrapper">
+    <h2>RSVP for an Event</h2>
+    <p class="sub">Secure your spot before the guest list closes.</p>
+    <div class="form-group">
+      <label for="full-name">Full Name</label>
+      <input type="text" id="full-name" placeholder="e.g. Chidi Okeke" required />
+    </div>
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="e.g. chidi@email.com" required />
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" placeholder="e.g. 08012345678" />
+    </div>
+    <div class="form-group">
+      <label for="event-select">Select Event</label>
+      <select id="event-select" required>
+        <option value="">-- Choose an event --</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="guests">Number of Guests (including yourself)</label>
+      <select id="guests">
+        <option value="1">1 — Just me</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5+</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="note">Message to Organiser (optional)</label>
+      <textarea id="note" placeholder="Any requirements or a shoutout..."></textarea>
+    </div>
+    <button class="btn" onclick="submitRSVP()" style="width:100%;padding:0.9rem;">
+      Confirm RSVP
+    </button>
+    <div id="rsvp-success">🎉 You're on the list! Check your email for confirmation.</div>
+  </div>
+  <footer>
+    <p>Built with ❤️ by the <span>CloudBoosta</span> DevOps team</p>
+  </footer>
+  <script src="app.js"></script>
+  <script>
+    const sel = document.getElementById('event-select');
+    EVENTS.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.name + ' — ' + e.city + ', ' + e.date;
+      sel.appendChild(opt);
+    });
+  </script>
+</body>
+</html>
