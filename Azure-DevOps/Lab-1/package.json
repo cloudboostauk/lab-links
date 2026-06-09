@@ -1,0 +1,13 @@
+cat > package.json << 'EOF'
+{
+  "name": "novapay-portal",
+  "version": "1.0.0",
+  "description": "NovaPay customer-facing banking portal",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo No tests yet && exit 0",
+    "lint": "echo Linting && exit 0"
+  }
+}
+EOF
+
