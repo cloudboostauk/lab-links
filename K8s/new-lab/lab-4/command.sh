@@ -37,7 +37,7 @@ kubectl create secret generic aws-credentials \
   aws secretsmanager update-secret \
   --secret-id techstart/database \
   --secret-string '{"username":"techstart_admin","password":"NewSecurePassword2024!","host":"db.techstart.internal"}' \
-  --region
+  --region eu-west-2
 
 #Task 8 step 8.2
 kubectl get secret db-credentials -o jsonpath='{.data.username}' | base64 -d
@@ -50,4 +50,4 @@ kubectl annotate externalsecret database-credentials force-sync=$(date +%s) --ov
 aws secretsmanager delete-secret \
   --secret-id techstart/database \
   --force-delete-without-recovery \
-  --region 
+  --region eu-west-2
