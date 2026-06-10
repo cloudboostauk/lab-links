@@ -1,8 +1,7 @@
 #Task 4 step 4.2
-wget -q https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64 -O hey
-chmod +x hey
-
-./hey -z 120s -c 50 http://localhost:30080/products
+for i in $(seq 1 100); do
+  while true; do curl -s http://localhost:30080/load > /dev/null; done &
+done
 
 #Task 6 step 6.2
 aws secretsmanager create-secret \
