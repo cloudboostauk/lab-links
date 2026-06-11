@@ -1,0 +1,66 @@
+
+# ── BLOCK 4: BUILD STAGE ─────────────────────────────────────
+# Runs on every trigger (PRs and pushes to main).
+# If this stage fails, no deployment happens.
+- stage: Build
+  displayName: 'Build and Test'
+  dependsOn: []
+  jobs:
+  - job: BuildJob
+    displayName: 'Install, Lint, Test, Package'
+    pool:
+      vmImage: 'ubuntu-latest'   # Fresh VM from Microsoft — no server to maintain
+    steps:
+ 
+    # Step 1: Install the correct Node.js version
+    # NodeTool@0 is a built-in Azure Pipelines task that installs Node.
+    # Using a task (not a raw script) means Azure handles version management
+    # and caching automatically.
+    - task: NodeTool@0
+      displayName: 'Use Node.js $(NODE_VERSION)'
+      inputs:
+        versionSpec: $(NODE_VERSION)
+ 
+    # Step 2: Install project dependencies
+    # npm install reads package.json and downloads all dependencies.
+    # This runs on the clean VM — node_modules does not persist between runs.
+    - script: |
+        echo '--- Installing dependencies ---'
+        npm install
+      displayName: 'Install Dependencies'
+ 
+    # Step 3: Run the linter
+    # Linting catches code style violations and common bugs before they
+    # reach a human reviewer. Fast feedback, no human time required.
+    - script: |
+        echo '--- Running linter ---'
+        npm run lint
+      displayName: 'Lint'
+ 
+    # Step 4: Run unit tests
+    # Tests verify that the code behaves as expected.
+    # If any test fails, the pipeline stops here and the PR cannot merge.
+    - script: |
+        echo '--- Running unit tests ---'
+        npm test
+      displayName: 'Unit Tests'
+ 
+    # Step 5: Package the application
+    # Copies the built source into the BUILD_DIR folder.
+    # This folder becomes the artifact — the deployable package.
+    - script: |
+        echo '--- Packaging application ---'
+        mkdir -p $(BUILD_DIR)
+        cp -r src $(BUILD_DIR)/
+        cp package*.json $(BUILD_DIR)/ 2>/dev/null || true
+        echo 'Build artifact ready.'
+      displayName: 'Package'
+ 
+    # Step 6: Publish the artifact
+    # 'publish' uploads the BUILD_DIR folder as a named artifact called 'drop'.
+    # Later stages download 'drop' to get the exact same package that was built here.
+    # This is critical: all three stages deploy the SAME artifact — not a rebuild.
+    - publish: $(BUILD_DIR)
+      artifact: drop
+      displayName: 'Publish Build Artifact'
+

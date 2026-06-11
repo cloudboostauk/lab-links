@@ -1,0 +1,111 @@
+# NovaPay Portal — CI/CD Pipeline
+ 
+# BLOCK 1: TRIGGERS
+trigger:
+  branches:
+    include:
+      - main
+ 
+pr:
+  branches:
+    include:
+      - main
+ 
+# BLOCK 2: VARIABLES
+variables:
+  NODE_VERSION: '18.x'
+  BUILD_DIR: 'dist'
+ 
+# BLOCK 3: STAGES
+stages:
+ 
+# BLOCK 4: BUILD STAGE
+- stage: Build
+  displayName: 'Build and Test'
+  dependsOn: []
+  jobs:
+  - job: BuildJob
+    displayName: 'Install, Lint, Test, Package'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: NodeTool@0
+      displayName: 'Use Node.js $(NODE_VERSION)'
+      inputs:
+        versionSpec: $(NODE_VERSION)
+    - script: |
+        npm install
+      displayName: 'Install Dependencies'
+    - script: |
+        npm run lint
+      displayName: 'Lint'
+    - script: |
+        npm test
+      displayName: 'Unit Tests'
+    - script: |
+        mkdir -p $(BUILD_DIR)
+        cp -r src $(BUILD_DIR)/
+        cp package*.json $(BUILD_DIR)/ 2>/dev/null || true
+      displayName: 'Package'
+    - publish: $(BUILD_DIR)
+      artifact: drop
+      displayName: 'Publish Build Artifact'
+ 
+# BLOCK 5: DEPLOY TO STAGING
+- stage: DeployStaging
+  displayName: 'Deploy to Staging'
+  dependsOn: Build
+  condition: >
+    and(
+      succeeded(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    )
+  jobs:
+  - deployment: DeployToStaging
+    displayName: 'Deploy NovaPay Portal to Staging'
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+            displayName: 'Download Build Artifact'
+          - script: |
+              echo 'Deploying to staging...'
+              ls -la $(Pipeline.Workspace)/drop/
+              echo 'Staging deployment complete.'
+            displayName: 'Deploy to Staging Server'
+            env:
+              STAGING_API_KEY: $(STAGING_API_KEY)
+              DB_CONNECTION_STRING: $(STAGING_DB_CONN)
+ 
+# BLOCK 6: DEPLOY TO PRODUCTION
+- stage: DeployProduction
+  displayName: 'Deploy to Production'
+  dependsOn: DeployStaging
+  condition: succeeded()
+  jobs:
+  - deployment: DeployToProduction
+    displayName: 'Deploy NovaPay Portal to Production'
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+            displayName: 'Download Build Artifact'
+          - script: |
+              echo 'Deploying to production...'
+              ls -la $(Pipeline.Workspace)/drop/
+              echo 'Production deployment complete.'
+            displayName: 'Deploy to Production Server'
+            env:
+              PROD_API_KEY: $(PROD_API_KEY)
+              DB_CONNECTION_STRING: $(PROD_DB_CONN)
+

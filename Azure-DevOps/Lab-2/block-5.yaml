@@ -1,0 +1,57 @@
+
+# ── BLOCK 5: DEPLOY TO STAGING ──────────────────────────────
+# Only runs after Build succeeds AND only on merges to main.
+# PR builds never reach this stage — preventing accidental deployments
+# from code that has not yet been reviewed or merged.
+- stage: DeployStaging
+  displayName: 'Deploy to Staging'
+  dependsOn: Build
+  condition: >
+    and(
+      succeeded(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    )
+  jobs:
+  - deployment: DeployToStaging
+    displayName: 'Deploy NovaPay Portal to Staging'
+    pool:
+      vmImage: 'ubuntu-latest'
+ 
+    # 'environment: staging' connects this job to the staging Environment
+    # you created in Step 5. Azure records this deployment in the environment's
+    # history — giving you an audit trail of every staging deployment.
+    environment: 'staging'
+ 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+ 
+          # Step 1: Download the artifact published by the Build stage.
+          # This is the exact same package that was built and tested above.
+          - download: current
+            artifact: drop
+            displayName: 'Download Build Artifact'
+ 
+          # Step 2: Deploy to the staging server.
+          # In a real project, this script would run an Azure CLI command,
+          # an SSH copy, or a Kubernetes deployment. For this lab, the echo
+          # statements show exactly what a real deploy step would do.
+          - script: |
+              echo '============================================'
+              echo 'Deploying NovaPay Portal to STAGING'
+              echo 'Artifact contents:'
+              ls -la $(Pipeline.Workspace)/drop/
+              echo '--------------------------------------------'
+              echo 'In a real deployment this step would run:'
+              echo '  az webapp deploy --name novapay-staging ...'
+              echo 'Staging deployment complete.'
+              echo '============================================'
+            displayName: 'Deploy to Staging Server'
+            env:
+              # Secret variables are mapped here.
+              # They are defined in the pipeline variable store (Step 7),
+              # never in this YAML file.
+              STAGING_API_KEY: $(STAGING_API_KEY)
+              DB_CONNECTION_STRING: $(STAGING_DB_CONN)
+

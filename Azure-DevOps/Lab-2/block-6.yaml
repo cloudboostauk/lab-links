@@ -1,0 +1,44 @@
+# ── BLOCK 6: DEPLOY TO PRODUCTION ───────────────────────────
+# Only runs after staging deployment succeeds.
+# The 'production' environment has a manual approval gate —
+# the pipeline pauses here until a designated approver confirms.
+- stage: DeployProduction
+  displayName: 'Deploy to Production'
+  dependsOn: DeployStaging
+  condition: succeeded()
+  jobs:
+  - deployment: DeployToProduction
+    displayName: 'Deploy NovaPay Portal to Production'
+    pool:
+      vmImage: 'ubuntu-latest'
+ 
+    # Referencing 'production' here links this job to the production Environment.
+    # Because you added an approval gate to that environment in Step 5,
+    # the pipeline automatically pauses and sends an approval request
+    # before any step in this job executes.
+    environment: 'production'
+ 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+ 
+          - download: current
+            artifact: drop
+            displayName: 'Download Build Artifact'
+ 
+          - script: |
+              echo '============================================'
+              echo 'Deploying NovaPay Portal to PRODUCTION'
+              echo 'Artifact contents:'
+              ls -la $(Pipeline.Workspace)/drop/
+              echo '--------------------------------------------'
+              echo 'In a real deployment this step would run:'
+              echo '  az webapp deploy --name novapay-prod ...'
+              echo 'Production deployment complete.'
+              echo '============================================'
+            displayName: 'Deploy to Production Server'
+            env:
+              PROD_API_KEY: $(PROD_API_KEY)
+              DB_CONNECTION_STRING: $(PROD_DB_CONN)
+

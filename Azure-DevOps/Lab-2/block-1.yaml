@@ -1,0 +1,20 @@
+# NovaPay Portal — CI/CD Pipeline
+ 
+# ── BLOCK 1: TRIGGERS ────────────────────────────────────────
+# Defines what events start this pipeline.
+ 
+# 'trigger' fires when code is pushed directly to 'main'.
+# This is what runs your full Build → Staging → Production chain.
+trigger:
+  branches:
+    include:
+      - main
+ 
+# 'pr' fires when a Pull Request targets 'main'.
+# This is what enables build validation on PRs.
+# Important: PR builds only run the Build stage — they do NOT deploy.
+pr:
+  branches:
+    include:
+      - main
+

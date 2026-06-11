@@ -1,0 +1,10 @@
+
+# ── BLOCK 3: STAGES SKELETON ─────────────────────────────────
+# Defines the high-level phases of the pipeline.
+# Each stage below will be filled in as you work through the lab.
+stages:
+ 
+# Stage 1 will go here — Build and Test
+# Stage 2 will go here — Deploy to Staging
+# Stage 3 will go here — Deploy to Production
+

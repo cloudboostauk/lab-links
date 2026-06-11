@@ -1,0 +1,9 @@
+
+# ── BLOCK 2: VARIABLES ───────────────────────────────────────
+# Plain, non-secret configuration values.
+# Reference anywhere in the pipeline with $(VARIABLE_NAME).
+# Example: $(NODE_VERSION) resolves to '18.x' at runtime.
+variables:
+  NODE_VERSION: '18.x'
+  BUILD_DIR: 'dist'
+
