@@ -1,0 +1,71 @@
+# NovaPay blue-green deployment pipeline.
+trigger:
+  branches:
+    include:
+      - main
+
+stages:
+
+- stage: Test
+  displayName: 'Run Tests'
+  jobs:
+  - job: TestJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        if grep -q 'EXPECTED_FEE: 50.00' index.html; then
+          echo 'TEST PASSED: fee marker is correct.'
+        else
+          echo 'TEST FAILED: fee marker missing or wrong.'; exit 1
+        fi
+      displayName: 'Run Tests'
+    - script: zip -r app.zip index.html
+      displayName: 'Package Application'
+    - publish: app.zip
+      artifact: app-package
+      displayName: 'Publish Artifact'
+
+- stage: Deploy
+  displayName: 'Blue-Green Deploy'
+  dependsOn: Test
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+      persistCredentials: true
+    - download: current
+      artifact: app-package
+    - script: |
+        if [ -f live-slot.txt ]; then LIVE=$(cat live-slot.txt); else LIVE='blue'; fi
+        if [ "$LIVE" = 'blue' ]; then IDLE='green'; else IDLE='blue'; fi
+        echo "Live: $LIVE   Idle: $IDLE"
+        echo "##vso[task.setvariable variable=IDLE_SLOT]$IDLE"
+      displayName: 'Determine idle slot'
+    - script: |
+        IDLE=$(IDLE_SLOT)
+        rm -rf $IDLE && mkdir -p $IDLE
+        unzip -o $(Pipeline.Workspace)/app-package/app.zip -d $IDLE
+        ls -1 $IDLE
+      displayName: 'Deploy to idle slot'
+    - script: |
+        IDLE=$(IDLE_SLOT)
+        if grep -q 'EXPECTED_FEE: 50.00' $IDLE/index.html; then
+          echo 'HEALTH CHECK PASSED.'
+        else
+          echo 'HEALTH CHECK FAILED - not swapping.'; exit 1
+        fi
+      displayName: 'Health check idle slot'
+    - script: |
+        IDLE=$(IDLE_SLOT)
+        echo "$IDLE" > live-slot.txt
+        echo "SWAP COMPLETE. Live slot is now: $IDLE"
+        git config user.email 'pipeline@novapay.example.com'
+        git config user.name 'NovaPay Pipeline'
+        git add -f live-slot.txt
+        git commit -m "chore: swap live slot to $IDLE [skip ci]" || echo 'No change'
+        git push origin HEAD:main
+      displayName: 'Swap idle slot to live'
