@@ -1,3 +1,30 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  color: #333;
+}
+ 
+h1 {
+  color: #0078D4;
+}
+ 
+/* Navigation bar styles */
+nav {
+  background-color: #0078D4;
+  padding: 12px 20px;
+  margin-bottom: 32px;
+  border-radius: 4px;
+}
+ 
+nav a {
+  color: white;
+  text-decoration: none;
+  margin-right: 24px;
+  font-weight: bold;
+}
+
 footer {
   margin-top: 64px;
   padding-top: 24px;
