@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>NovaPay Fee Calculator</title>
+  <script>
+    // ===== Change these two lines to release a new version =====
+    const VERSION = 'v1';
+    const RATE    = 0.005;   // 0.5% domestic fee
+    // ===========================================================
+ 
+    // The fee the pipeline checks for: 10000 * 0.005 = 50.00
+    const CHECK_FEE = (10000 * RATE).toFixed(2);
+ 
+    function calculate() {
+      const amount = Number(document.getElementById('amount').value);
+      const out = document.getElementById('result');
+      if (!amount || amount <= 0) { out.textContent = 'Enter a positive amount.'; return; }
+      out.textContent = (amount * RATE).toFixed(2) + ' NGN';
+    }
+ 
+    window.onload = function () {
+      // Navy for v1, teal for any later version.
+      document.body.style.background = (VERSION === 'v1') ? '#1B2D5C' : '#2A9D8F';
+      document.getElementById('ver').textContent = 'Version: ' + VERSION;
+    };
+  </script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding-top: 60px; color: white; }
+    input, button { font-size: 18px; padding: 8px; margin: 6px; }
+    #result { font-size: 44px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>NovaPay Fee Calculator</h1>
+  <h2 id="ver"></h2>
+  <input id="amount" type="number" value="10000">
+  <button onclick="calculate()">Calculate fee</button>
+  <div id="result"></div>
+ 
+  <!-- The pipeline reads this line to health-check a release. -->
+  <!-- EXPECTED_FEE: 50.00 -->
+</body>
+</html>

@@ -1,0 +1,21 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  persistCredentials: true
+- script: |
+    CURRENT=$(cat live-slot.txt)
+    if [ "$CURRENT" = 'blue' ]; then PREVIOUS='green'; else PREVIOUS='blue'; fi
+    echo "Rolling back: $CURRENT -> $PREVIOUS"
+    echo "$PREVIOUS" > live-slot.txt
+    git config user.email 'pipeline@novapay.example.com'
+    git config user.name 'NovaPay Pipeline'
+    git add -f live-slot.txt
+    git commit -m "rollback: swap to $PREVIOUS [skip ci]"
+    git push https://$(System.AccessToken)@dev.azure.com/akinolacrypto-novapay/Novapay-bluegreen/_git/Novapay-bluegreen HEAD:main
+  displayName: 'Swap back to previous slot'
+  env:
+    System.AccessToken: $(System.AccessToken)
