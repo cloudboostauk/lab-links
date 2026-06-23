@@ -36,22 +36,35 @@ stages:
 - stage: Deploy
   displayName: 'Deploy to Staging'
   dependsOn: Test
-  condition: succeeded()
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
   jobs:
   - job: DeployJob
     displayName: 'Deploy Application'
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+
     - download: current
       artifact: app-package
       displayName: 'Download Build Artifact'
+
     - script: |
         echo '================================================='
         echo 'Deploying NovaPay Calculator to staging...'
+        echo ''
         echo 'Package contents:'
         unzip -l $(Pipeline.Workspace)/app-package/app.zip
+        echo ''
+        echo 'Authenticating with staging server...'
+        echo "API key in use: $STAGING_API_KEY"
+        echo ''
+        echo 'In a real deployment this step would run:'
+        echo '  scp app.zip deploy@staging.novapay.example.com:/app/'
+        echo '  ssh deploy@staging.novapay.example.com "cd /app && unzip -o app.zip"'
+        echo ''
         echo 'Deployment complete.'
         echo '================================================='
       displayName: 'Deploy to Staging Server'
+      env:
+        STAGING_API_KEY: $(STAGING_API_KEY)
 
