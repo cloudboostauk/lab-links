@@ -1,0 +1,26 @@
+    - task: AzureCLI@2
+      displayName: 'Configure and deploy the page'
+      inputs:
+        azureSubscription: '$(AZURE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          set -e
+          SA=$(cat $(Pipeline.Workspace)/tf-outputs/sa.txt)
+          KV=$(cat $(Pipeline.Workspace)/tf-outputs/kv.txt)
+
+          # Read the two values straight from Key Vault with the CLI.
+          ENV_NAME=$(az keyvault secret show --vault-name "$KV" --name environment-name --query value -o tsv)
+          SUPPORT=$(az keyvault secret show --vault-name "$KV" --name support-email --query value -o tsv)
+
+          # Put them into the page.
+          sed -i "s/__ENVIRONMENT__/$ENV_NAME/" site/index.html
+          sed -i "s/__SUPPORT_EMAIL__/$SUPPORT/" site/index.html
+
+          # Upload the finished page.
+          az storage blob upload-batch \
+            --account-name "$SA" \
+            --destination '$web' \
+            --source site \
+            --overwrite true \
+            --auth-mode login

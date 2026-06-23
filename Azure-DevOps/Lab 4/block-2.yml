@@ -1,0 +1,4 @@
+# Reusable values. Change PYTHON_VERSION here and it updates everywhere.
+variables:
+  PYTHON_VERSION: '3.11'
+

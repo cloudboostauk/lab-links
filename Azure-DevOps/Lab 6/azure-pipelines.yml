@@ -1,0 +1,44 @@
+trigger:
+  branches: { include: [ main ] }
+ 
+pool:
+  vmImage: 'ubuntu-latest'
+ 
+variables:
+  AZURE_CONNECTION: 'novapay-azure-connection'
+ 
+stages:
+- stage: Provision
+  displayName: 'Terraform Provision'
+  jobs:
+  - job: ProvisionJob
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Terraform init and apply'
+      inputs:
+        azureSubscription: '$(AZURE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Install Terraform on the build machine.
+          wget -qO- https://apt.releases.hashicorp.com/gpg | \
+            sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] \
+            https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+            sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt-get update && sudo apt-get install -y terraform
+ 
+          # Let Terraform log in to Azure using the service connection.
+          export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+ 
+          # No backend block in the code, so this uses local state.
+          terraform init
+          terraform apply -auto-approve
+ 
+          # Save the outputs for the deploy stage.
+          terraform output -raw storage_account_name > $(Build.ArtifactStagingDirectory)/sa.txt
+          terraform output -raw key_vault_name        > $(Build.ArtifactStagingDirectory)/kv.txt
+          terraform output -raw website_url           > $(Build.ArtifactStagingDirectory)/url.txt
+    - publish: $(Build.ArtifactStagingDirectory)
+      artifact: tf-outputs

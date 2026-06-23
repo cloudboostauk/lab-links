@@ -1,0 +1,12 @@
+
+    - script: |
+        echo '================================================='
+        echo 'Deploying NovaPay Calculator to staging...'
+        echo 'Package contents:'
+        unzip -l $(Pipeline.Workspace)/app-package/app.zip
+        echo 'Deployment complete.'
+        echo '================================================='
+      displayName: 'Deploy to Staging Server'
+      env:
+        STAGING_API_KEY: $(STAGING_API_KEY)   # Injected from the secret store
+

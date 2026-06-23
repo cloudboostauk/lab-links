@@ -1,0 +1,57 @@
+trigger:
+  branches:
+    include:
+      - main
+ 
+variables:
+  PYTHON_VERSION: '3.11'
+ 
+stages:
+ 
+- stage: Test
+  displayName: 'Run Tests'
+  jobs:
+  - job: TestJob
+    displayName: 'Test the Calculator'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      displayName: 'Use Python $(PYTHON_VERSION)'
+      inputs:
+        versionSpec: $(PYTHON_VERSION)
+    - script: python --version
+      displayName: 'Confirm Python Version'
+    - script: python -m unittest test_calculator.py -v
+      displayName: 'Run Unit Tests'
+    - script: |
+        zip -r app.zip calculator.py test_calculator.py README.md
+        echo 'Package contents:'
+        unzip -l app.zip
+      displayName: 'Package Application'
+    - publish: app.zip
+      artifact: app-package
+      displayName: 'Publish Artifact'
+ 
+- stage: Deploy
+  displayName: 'Deploy to Staging'
+  dependsOn: Test
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Application'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - download: current
+      artifact: app-package
+      displayName: 'Download Build Artifact'
+    - script: |
+        echo '================================================='
+        echo 'Deploying NovaPay Calculator to staging...'
+        echo 'Package contents:'
+        unzip -l $(Pipeline.Workspace)/app-package/app.zip
+        echo 'Deployment complete.'
+        echo '================================================='
+      displayName: 'Deploy to Staging Server'
+

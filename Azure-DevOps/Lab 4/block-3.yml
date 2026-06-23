@@ -1,0 +1,52 @@
+stages:
+ 
+# ─────────────────────────────────────────────────────────────
+# STAGE 1: Test
+# Runs on every push to main.
+# If any test fails, the pipeline stops here — nothing deploys.
+# ─────────────────────────────────────────────────────────────
+- stage: Test
+  displayName: 'Run Tests'
+  jobs:
+  - job: TestJob
+    displayName: 'Test the Calculator'
+    pool:
+      vmImage: 'ubuntu-latest'   # A fresh Linux VM from Microsoft
+    steps:
+ 
+    # Step 1: Install the correct Python version.
+    # UsePythonVersion@0 is a built-in Azure Pipelines task.
+    - task: UsePythonVersion@0
+      displayName: 'Use Python $(PYTHON_VERSION)'
+      inputs:
+        versionSpec: $(PYTHON_VERSION)
+ 
+    # Step 2: Print the Python version to the log.
+    # This is a quick sanity check — you can see the exact
+    # version that ran your tests.
+    - script: python --version
+      displayName: 'Confirm Python Version'
+ 
+    # Step 3: Run the tests.
+    # Uses Python's built-in unittest module — nothing to install.
+    # If any test fails, this step exits with a non-zero code,
+    # which marks the pipeline as failed and stops all further steps.
+    - script: python -m unittest test_calculator.py -v
+      displayName: 'Run Unit Tests'
+ 
+    # Step 4: Package the application.
+    # Zip the source files into a deployable archive.
+    # The Deploy stage will download and use this exact archive.
+    - script: |
+        echo 'Packaging application...'
+        zip -r app.zip calculator.py test_calculator.py README.md
+        echo 'Package contents:'
+        unzip -l app.zip
+      displayName: 'Package Application'
+ 
+    # Step 5: Publish the package as a pipeline artifact.
+    # This uploads app.zip so later stages can download it.
+    - publish: app.zip
+      artifact: app-package
+      displayName: 'Publish Artifact'
+

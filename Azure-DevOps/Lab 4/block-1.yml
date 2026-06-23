@@ -1,0 +1,15 @@
+# azure-pipelines.yml
+# NovaPay Fee Calculator — CI/CD Pipeline
+ 
+# Run on every push to main (triggers the full Test + Deploy pipeline)
+trigger:
+  branches:
+    include:
+      - main
+
+# Run on every Pull Request targeting main (tests only — no deploy)
+pr:
+  branches:
+    include:
+      - main
+
