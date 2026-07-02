@@ -1,0 +1,85 @@
+trigger:
+  branches: { include: [ main ] }
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  AZURE_CONNECTION: 'novapay-azure-connection'
+  TF_STATE_STORAGE_ACCOUNT: 'novapaytfstate14743'
+stages:
+- stage: Provision
+  displayName: 'Terraform Provision'
+  jobs:
+  - job: ProvisionJob
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Terraform init and apply'
+      inputs:
+        azureSubscription: '$(AZURE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Install Terraform on the build machine.
+          wget -qO- https://apt.releases.hashicorp.com/gpg | \
+            sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] \
+            https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+            sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt-get update && sudo apt-get install -y terraform
+
+          # Let Terraform log in to Azure using the service connection.
+          export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+          export ARM_CLIENT_ID=$(az account show --query user.name -o tsv)
+
+          # Initialise Terraform with the remote backend.
+          terraform init -reconfigure
+          terraform apply -auto-approve
+
+          # Save the outputs for the deploy stage.
+          terraform output -raw storage_account_name > $(Build.ArtifactStagingDirectory)/sa.txt
+          terraform output -raw key_vault_name        > $(Build.ArtifactStagingDirectory)/kv.txt
+          terraform output -raw website_url           > $(Build.ArtifactStagingDirectory)/url.txt
+    - publish: $(Build.ArtifactStagingDirectory)
+      artifact: tf-outputs
+
+- stage: Deploy
+  displayName: 'Configure and Deploy'
+  dependsOn: Provision
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    steps:
+    - checkout: self
+    - download: current
+      artifact: tf-outputs
+    - task: AzureCLI@2
+      displayName: 'Configure and deploy the page'
+      inputs:
+        azureSubscription: '$(AZURE_CONNECTION)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          set -e
+          # Read the resource names the Provision stage saved.
+          SA=$(cat $(Pipeline.Workspace)/tf-outputs/sa.txt)
+          KV=$(cat $(Pipeline.Workspace)/tf-outputs/kv.txt)
+
+          # Read the two config values straight from Key Vault.
+          ENV_NAME=$(az keyvault secret show --vault-name "$KV" \
+            --name environment-name --query value -o tsv)
+          SUPPORT=$(az keyvault secret show --vault-name "$KV" \
+            --name support-email --query value -o tsv)
+
+          # Put the values into the page.
+          sed -i "s/__ENVIRONMENT__/$ENV_NAME/"   site/index.html
+          sed -i "s/__SUPPORT_EMAIL__/$SUPPORT/"  site/index.html
+
+          # Upload the finished page into the $web folder.
+          az storage blob upload-batch \
+            --account-name "$SA" \
+            --destination '$web' \
+            --source site \
+            --overwrite true \
+            --auth-mode key

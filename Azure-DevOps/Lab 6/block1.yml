@@ -1,12 +1,12 @@
 trigger:
   branches: { include: [ main ] }
- 
+
 pool:
   vmImage: 'ubuntu-latest'
- 
+
 variables:
   AZURE_CONNECTION: 'novapay-azure-connection'
- 
+  TF_STATE_STORAGE_ACCOUNT: <your-storage-account-name>
 stages:
 - stage: Provision
   displayName: 'Terraform Provision'
@@ -27,15 +27,16 @@ stages:
             https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
             sudo tee /etc/apt/sources.list.d/hashicorp.list
           sudo apt-get update && sudo apt-get install -y terraform
- 
+
           # Let Terraform log in to Azure using the service connection.
           export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
           export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
- 
-          # No backend block in the code, so this uses local state.
-          terraform init
+          export ARM_CLIENT_ID=$(az account show --query user.name -o tsv)
+
+          # Initialise Terraform with the remote backend.
+          terraform init -reconfigure
           terraform apply -auto-approve
- 
+
           # Save the outputs for the deploy stage.
           terraform output -raw storage_account_name > $(Build.ArtifactStagingDirectory)/sa.txt
           terraform output -raw key_vault_name        > $(Build.ArtifactStagingDirectory)/kv.txt

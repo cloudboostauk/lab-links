@@ -19,17 +19,17 @@
           # Read the resource names the Provision stage saved.
           SA=$(cat $(Pipeline.Workspace)/tf-outputs/sa.txt)
           KV=$(cat $(Pipeline.Workspace)/tf-outputs/kv.txt)
- 
+
           # Read the two config values straight from Key Vault.
           ENV_NAME=$(az keyvault secret show --vault-name "$KV" \
             --name environment-name --query value -o tsv)
           SUPPORT=$(az keyvault secret show --vault-name "$KV" \
             --name support-email --query value -o tsv)
- 
+
           # Put the values into the page.
           sed -i "s/__ENVIRONMENT__/$ENV_NAME/"   site/index.html
           sed -i "s/__SUPPORT_EMAIL__/$SUPPORT/"  site/index.html
- 
+
           # Upload the finished page into the $web folder.
           az storage blob upload-batch \
             --account-name "$SA" \
