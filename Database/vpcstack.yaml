@@ -1,0 +1,259 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  VPCStack - Lab VPC, CommandHost EC2 instance, and Security Groups
+  for the RDS Oracle Multi-AZ Lab.
+
+Parameters:
+  AvailabilityZone1:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: eu-west-2a
+  AvailabilityZone2:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: eu-west-2b
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+  InstanceType:
+    Type: String
+    Default: t3.micro
+
+Resources:
+
+  ################################
+  # VPC
+  ################################
+  LabVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: Lab VPC
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Lab VPC IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref LabVPC
+      InternetGatewayId: !Ref InternetGateway
+
+  ################################
+  # Subnets
+  ################################
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LabVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Ref AvailabilityZone1
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LabVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Ref AvailabilityZone2
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 2
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LabVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Ref AvailabilityZone1
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: Private Subnet 1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LabVPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: !Ref AvailabilityZone2
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: Private Subnet 2
+
+  ################################
+  # Routing (public subnets only)
+  ################################
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref LabVPC
+      Tags:
+        - Key: Name
+          Value: Public Route Table
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  ################################
+  # Security Groups
+  ################################
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: EC2SecurityGroup
+      GroupDescription: Security group for the CommandHost EC2 instance
+      VpcId: !Ref LabVPC
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: EC2SecurityGroup
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: RDSSecurityGroup
+      GroupDescription: Security group for the RDS Oracle instance
+      VpcId: !Ref LabVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 1521
+          ToPort: 1521
+          SourceSecurityGroupId: !Ref EC2SecurityGroup
+      Tags:
+        - Key: Name
+          Value: RDSSecurityGroup
+
+  ################################
+  # IAM Role for Session Manager
+  ################################
+  CommandHostRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Tags:
+        - Key: Name
+          Value: CommandHostRole
+
+  CommandHostInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref CommandHostRole
+
+  ################################
+  # CommandHost EC2 Instance
+  ################################
+  CommandHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref PublicSubnet1
+      IamInstanceProfile: !Ref CommandHostInstanceProfile
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      Tags:
+        - Key: Name
+          Value: CommandHost
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -e
+          yum install -y libaio unzip wget
+
+          # Download and install Oracle Instant Client Basic + SQL*Plus (19c)
+          # Note: sqlplus depends on the "basic" package specifically, not "basiclite" -
+          # they are separate, non-interchangeable packages, so basiclite will not satisfy
+          # sqlplus's dependency even though both provide client libraries.
+          cd /opt
+          wget -q https://download.oracle.com/otn_software/linux/instantclient/1923000/oracle-instantclient19.23-basic-19.23.0.0.0-1.x86_64.rpm
+          wget -q https://download.oracle.com/otn_software/linux/instantclient/1923000/oracle-instantclient19.23-sqlplus-19.23.0.0.0-1.x86_64.rpm
+
+          # Install both RPMs in a single transaction so dependencies resolve correctly
+          yum install -y \
+            oracle-instantclient19.23-basic-19.23.0.0.0-1.x86_64.rpm \
+            oracle-instantclient19.23-sqlplus-19.23.0.0.0-1.x86_64.rpm
+
+          echo 'export PATH=$PATH:/usr/lib/oracle/19.23/client64/bin' >> /etc/profile.d/oracle-client.sh
+          echo 'export LD_LIBRARY_PATH=/usr/lib/oracle/19.23/client64/lib' >> /etc/profile.d/oracle-client.sh
+          chmod +x /etc/profile.d/oracle-client.sh
+
+Outputs:
+  VPCId:
+    Description: Lab VPC ID
+    Value: !Ref LabVPC
+
+  PublicSubnet1Id:
+    Description: Public Subnet 1 ID
+    Value: !Ref PublicSubnet1
+
+  PublicSubnet2Id:
+    Description: Public Subnet 2 ID
+    Value: !Ref PublicSubnet2
+
+  PrivateSubnet1Id:
+    Description: Private Subnet 1 ID
+    Value: !Ref PrivateSubnet1
+
+  PrivateSubnet2Id:
+    Description: Private Subnet 2 ID
+    Value: !Ref PrivateSubnet2
+
+  EC2SecurityGroupId:
+    Description: Security Group ID for CommandHost
+    Value: !Ref EC2SecurityGroup
+    Export:
+      Name: EC2SecurityGroupID
+
+  RDSSecurityGroupId:
+    Description: Security Group ID for RDS Oracle instance
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: RDSSecurityGroupID
+
+  CommandHostInstanceId:
+    Description: Instance ID of CommandHost
+    Value: !Ref CommandHost
+
+  CommandHostSessionUrl:
+    Description: Direct link to open a Session Manager session on CommandHost
+    Value: !Sub https://${AWS::Region}.console.aws.amazon.com/systems-manager/session-manager/${CommandHost}?region=${AWS::Region}
