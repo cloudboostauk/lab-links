@@ -33,7 +33,7 @@ kubectl create secret generic aws-credentials \
   --from-literal=secret-key=YOUR_SECRET_KEY
 
 
-#Task 7 step 7.6
+#Task 8 step 8.6
   aws secretsmanager update-secret \
   --secret-id techstart/database \
   --secret-string '{"username":"techstart_admin","password":"NewSecurePassword2024!","host":"db.techstart.internal"}' \
