@@ -4,5 +4,7 @@ GO
 
 USE CityRideDB;
 CREATE USER [finance_analyst] FOR LOGIN [finance_analyst];
--- Grant read-only accessALTER ROLE db_datareader ADD MEMBER [finance_analyst];
+
+-- Grant read-only access
+ALTER ROLE db_datareader ADD MEMBER [finance_analyst];
 GO
